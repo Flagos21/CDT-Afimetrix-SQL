@@ -186,7 +186,7 @@ app.delete('/estudiantes/:id', (req, res) => {
         return;
       }
       const cursoId = result.insertId;
-      db.query('SELECT * FROM estudiantes WHERE id = ?', cursoId, (err, result) => {
+      db.query('SELECT * FROM cursos WHERE id = ?', cursoId, (err, result) => {
         if (err) {
           res.status(500).send('Error fetching created cursos');
           return;
@@ -240,7 +240,79 @@ app.delete('/estudiantes/:id', (req, res) => {
     });
   });
 
-
+  /* EndPoins Colegio */
+  app.get('/colegios', (req, res) => {
+    db.query('SELECT * FROM colegios', (err, results) => {
+      if (err) {
+        res.status(500).send('Error fetching colegios');
+        return;
+      }
+      res.json(results);
+    });
+  });
+  
+  app.post('/colegios/agregar-colegios', (req, res) => {
+    const { idColegio, Nombre, idFundacion, idCiudad } = req.body;
+    db.query('INSERT INTO colegios (idColegio, Nombre, idCiudad, idFundacion) VALUES (?, ?, ?, ?)', [idColegio, Nombre, idFundacion, idCiudad], (err, result) => {
+      if (err) {
+        res.status(500).send('Error creating colegio');
+        return;
+      }
+      const colegioId = result.insertId;
+      db.query('SELECT * FROM colegios WHERE id = ?', colegioId, (err, result) => {
+        if (err) {
+          res.status(500).send('Error fetching created colegio');
+          return;
+        }
+        res.status(201).json(result[0]);
+      });
+    });
+  });
+  
+  app.get('/colegios/:id', (req, res) => {
+    const colegioId = req.params.id;
+    db.query('SELECT * FROM colegios WHERE id = ?', colegioId, (err, result) => {
+      if (err) {
+        res.status(500).send('Error fetching colegio');
+        return;
+      }
+      if (result.length === 0) {
+        res.status(404).send('Colegio not found');
+        return;
+      }
+      res.json(result[0]);
+    });
+  });
+  
+  app.put('/colegios/:id', (req, res) => {
+    const colegioId = req.params.id;
+    const { idColegio, Nombre, idCiudad, idFundacion } = req.body;
+    db.query('UPDATE colegios SET idColegio = ?, Nombre = ?, idCiudad = ?, idFundacion = ? WHERE id = ?', [idColegio, Nombre, idCiudad, idFundacion, colegioId], err => {
+      if (err) {
+        res.status(500).send('Error updating colegio');
+        return;
+      }
+      db.query('SELECT * FROM colegios WHERE id = ?', colegioId, (err, result) => {
+        if (err) {
+          res.status(500).send('Error fetching updated colegio');
+          return;
+        }
+        res.json(result[0]);
+      });
+    });
+  });
+  
+  app.delete('/colegios/:id', (req, res) => {
+    const colegioId = req.params.id;
+    db.query('DELETE FROM colegios WHERE id = ?', colegioId, err => {
+      if (err) {
+        res.status(500).send('Error deleting colegio');
+        return;
+      }
+      res.status(200).json({ msg: 'Colegio deleted successfully' });
+    });
+  });
+  
 
 /* Start server */
 app.listen(port, () => {
