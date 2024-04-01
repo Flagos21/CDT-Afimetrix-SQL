@@ -95,6 +95,78 @@ app.delete('/estudiantes/:id', (req, res) => {
     res.status(200).json({ msg: 'Estudiante deleted successfully' });
   });
 });
+  /* EndPoins Profesor */
+  app.get('/profesores', (req, res) => {
+    db.query('SELECT * FROM profesores', (err, results) => {
+      if (err) {
+        res.status(500).send('Error fetching profesores');
+        return;
+      }
+      res.json(results);
+    });
+  });
+  
+  app.post('/profesores/mp-agregar-profesor', (req, res) => {
+    const { idProfesor, Nombre, Clave} = req.body;
+    db.query('INSERT INTO profesores (idProfesor, Nombre, Clave) VALUES (?, ?, ?)', [idProfesor, Nombre, Clave], (err, result) => {
+      if (err) {
+        res.status(500).send('Error creating curso');
+        return;
+      }
+      const profesorId = result.insertId;
+      db.query('SELECT * FROM profesores WHERE id = ?', profesorId, (err, result) => {
+        if (err) {
+          res.status(500).send('Error fetching created profesores');
+          return;
+        }
+        res.status(201).json(result[0]);
+      });
+    });
+  });
+    
+  app.get('/profesores/:id', (req, res) => {
+    const profesorId = req.params.id;
+    db.query('SELECT * FROM profesores WHERE id = ?', profesorId, (err, result) => {
+      if (err) {
+        res.status(500).send('Error fetching profesores');
+        return;
+      }
+      if (result.length === 0) {
+        res.status(404).send('cursos not found');
+        return;
+      }
+      res.json(result[0]);
+    });
+  });
+    
+  app.put('/profesores/:id', (req, res) => {
+    const profesorId = req.params.id;
+    const { idProfesor, Nombre, Clave } = req.body;
+    db.query('UPDATE profesores SET idProfesor = ?, Nombre = ?, Clave = ?, WHERE id = ?', [idProfesor, Nombre, Clave], err => {
+      if (err) {
+        res.status(500).send('Error updating profesores');
+        return;
+      }
+      db.query('SELECT * FROM profesores WHERE id = ?', idProfesor, (err, result) => {
+        if (err) {
+          res.status(500).send('Error fetching updated profesores');
+          return;
+        }
+        res.json(result[0]);
+      });
+    });
+  });
+    
+  app.delete('/profesores/:id', (req, res) => {
+    const cursoId = req.params.id;
+    db.query('DELETE FROM profesores WHERE id = ?', cursoId, err => {
+      if (err) {
+        res.status(500).send('Error deleting profesores');
+        return;
+      }
+      res.status(200).json({ msg: 'profesores deleted successfully' });
+    });
+  });
   /* EndPoins Curso */
   app.get('/cursos', (req, res) => {
     db.query('SELECT * FROM cursos', (err, results) => {
